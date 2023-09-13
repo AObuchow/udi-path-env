@@ -1,0 +1,12 @@
+schemaVersion: 2.2.0
+metadata:
+  name: simple-parent
+events:
+  postStart:
+    - load-environment
+commands:
+  - id: load-environment
+    exec:
+      component: tools
+      commandLine: source /home/user/.bashrc
+      workingDir: ${PROJECT_SOURCE}
