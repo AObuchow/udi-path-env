@@ -8,4 +8,4 @@ commands:
   - id: load-environment
     exec:
       component: tools
-      commandLine: echo /home/user/.bashrc
+      commandLine: source /home/user/.bashrc
