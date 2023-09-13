@@ -1,0 +1,72 @@
+schemaVersion: 2.2.0
+metadata:
+  name: udi-tooling-test
+  displayName: UDI tooling test
+  description: UDI tooling test
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/spring.svg
+  tags:
+    - Java
+    - Spring
+  projectType: springboot
+  language: Java
+  version: 2.0.0
+  globalMemoryLimit: 2674Mi
+projects:
+  - name: udi-tooling
+    git:
+      remotes:
+        origin: "https://github.com/AObuchow/udi-path-env.git"
+components:
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:ubi8-latest
+      command: ['tail', '-f', '/dev/null']
+      memoryLimit: 768Mi
+      mountSources: true
+      endpoints:
+        - name: http-springboot
+          targetPort: 8080
+        - exposure: none
+          name: debug
+          targetPort: 5858
+      env:
+        - name: DEBUG_PORT
+          value: "5858"
+  - name: build
+    image:
+      imageName: java-springboot-image:latest
+      dockerfile:
+        uri: docker/Dockerfile
+        buildContext: .
+        rootRequired: false
+  - name: deploy
+    kubernetes:
+      uri: kubernetes/deploy.yaml
+      endpoints:
+        - name: http-8081
+          targetPort: 8081
+events:
+  postStart:
+    - log-binaries
+    - test-binaries
+commands:
+  - id: update-home
+    exec:
+      component: tools
+      commandLine: stow . -t /home/user/ -d /home/tooling/ && source /home/user/.bashrc
+      workingDir: /home/tooling/
+  - id: load-environment
+    exec:
+      component: tools
+      commandLine: source /home/user/.bashrc
+      workingDir: ${PROJECT_SOURCE}
+  - id: test-binaries
+    exec:
+      component: tools
+      commandLine: sdk > /projects/udi-tooling/sdk_out.txt ; jbang --help > ${PROJECT_SOURCE}/jbang_out.txt ; gopls --help > ${PROJECT_SOURCE}/gopls_out.txt ; kubectl krew > ${PROJECT_SOURCE}/krew_out.txt
+      workingDir: ${PROJECT_SOURCE}
+  - id: log-binaries
+    exec:
+      component: tools
+      commandLine: compgen -c | xargs which --all --skip-functions | sort | uniq > ${PROJECT_SOURCE}/binaries.txt ;  git add ${PROJECT_SOURCE}/binaries.txt ; git commit -m "update binaries.txt" ; git push 
+      workingDir: ${PROJECT_SOURCE}
