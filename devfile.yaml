@@ -11,8 +11,6 @@ metadata:
   language: Java
   version: 2.0.0
   globalMemoryLimit: 2674Mi
-parent:
-  uri: https://raw.githubusercontent.com/AObuchow/udi-path-env/main/parent-devfile.yaml
 projects:
   - name: udi-tooling
     git:
@@ -47,6 +45,9 @@ components:
       endpoints:
         - name: http-8081
           targetPort: 8081
+events:
+  postStart:
+    - load-environment
 commands:
   - id: test-binaries
     exec:
@@ -58,3 +59,7 @@ commands:
       component: tools
       commandLine: compgen -c | xargs which --all --skip-functions | sort | uniq > ${PROJECT_SOURCE}/binaries.txt ;  git add ${PROJECT_SOURCE}/binaries.txt ; git commit -m "update binaries.txt" ; git push 
       workingDir: ${PROJECT_SOURCE}
+  - id: load-environment
+    exec:
+      component: tools
+      commandLine: source /home/user/.bashrc
