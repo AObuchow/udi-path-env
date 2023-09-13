@@ -47,16 +47,7 @@ components:
       endpoints:
         - name: http-8081
           targetPort: 8081
-events:
-  postStart:
-    - log-binaries
-    - test-binaries
 commands:
-  - id: update-home
-    exec:
-      component: tools
-      commandLine: stow . -t /home/user/ -d /home/tooling/ && source /home/user/.bashrc
-      workingDir: /home/tooling/
   - id: test-binaries
     exec:
       component: tools
