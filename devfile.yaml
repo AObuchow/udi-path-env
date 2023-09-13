@@ -11,6 +11,8 @@ metadata:
   language: Java
   version: 2.0.0
   globalMemoryLimit: 2674Mi
+parent:
+  uri: https://raw.githubusercontent.com/AObuchow/udi-path-env/main/parent-devfile.yaml
 projects:
   - name: udi-tooling
     git:
@@ -55,11 +57,6 @@ commands:
       component: tools
       commandLine: stow . -t /home/user/ -d /home/tooling/ && source /home/user/.bashrc
       workingDir: /home/tooling/
-  - id: load-environment
-    exec:
-      component: tools
-      commandLine: source /home/user/.bashrc
-      workingDir: ${PROJECT_SOURCE}
   - id: test-binaries
     exec:
       component: tools
